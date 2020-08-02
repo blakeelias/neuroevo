@@ -1,0 +1,12 @@
+torch
+numpy
+# mkl
+jupyter
+jupyterlab
+gym
+opencv-python
+seaborn
+redis
+rq
+Pillow
+imageio
