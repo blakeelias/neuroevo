@@ -3,7 +3,9 @@ numpy
 # mkl
 jupyter
 jupyterlab
-gym
+#gym
+#gym[all]
+gym[atari]
 opencv-python
 seaborn
 redis
