@@ -5,6 +5,7 @@ sudo apt update
 sudo apt install virtualenv
 virtualenv --python $(which python3) venv
 apt-get install -y python-numpy python-dev cmake zlib1g-dev libjpeg-dev xvfb ffmpeg xorg-dev python-opengl libboost-all-dev libsdl2-dev swig  # replaced libavtools with ffpmeg
+sudo apt install redis-server
 source venv/bin/activate
 pip3 install -r requirements.txt
 
