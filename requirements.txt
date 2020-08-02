@@ -10,5 +10,7 @@ opencv-python
 seaborn
 redis
 rq
+redis-server
 Pillow
 imageio
+tqdm
