@@ -1,5 +1,6 @@
-# import mkl
-# mkl.set_num_threads(1)
+import mkl
+mkl.set_num_threads(1)
+print('Successfully imported mkl...')
 
 import torch
 import torch.nn as nn
