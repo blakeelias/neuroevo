@@ -2,7 +2,10 @@
 
 num_workers=$1
 
+
+
 cd ~/neuroevo
+
 source venvconda3/bin/activate
 for i in {0..${num_workers}}
 do
