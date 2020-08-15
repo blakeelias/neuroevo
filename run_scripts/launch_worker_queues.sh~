@@ -1,0 +1,6 @@
+cd ~/neuroevo
+source venvconda3/bin/activate
+for i in {0..72}
+do
+    nohup rq worker -c settings > $i&
+done
