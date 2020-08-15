@@ -63,16 +63,16 @@ def show_img(im, figsize=None, ax=None):
     ax.get_yaxis().set_visible(False)
     return ax
 
-def render(env, converted=False):
-    state = env.render(mode='rgb_array')
-    if converted:
-        state = convert_state(state)
-    plt.show(show_img(state))
+#def render(env, converted=False):
+#    state = env.render(mode='rgb_array')
+#    if converted:
+#        state = convert_state(state)
+#    plt.show(show_img(state))
     
 reset(env)
 print(env.action_space)
-render(env)
-render(env, converted=True)
+#render(env)
+#render(env, converted=True)
 
 
 # # Model
