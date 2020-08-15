@@ -9,11 +9,11 @@ git pull origin master
 echo "REDIS_HOST = '${master_IP}'" > settings.py
 
 echo "-1" > logs/max_id.txt
-CMD="run_scripts/cron_check_pids.sh $num_workers"
-$(CMD)
+CMD="/home/ubuntu/neuroevo/run_scripts/cron_check_pids.sh $num_workers"
+$CMD
 
 # schedule CMD
-line="* * * * * ubuntu $CMD""
-sudo echo $line >> /etc/crontab
-
+line="* * * * * ubuntu $CMD > /home/ubuntu/neuroevo/logs/init_log.log; echo hi-from-cron > /home/ubuntu/neuroevo/test.txt"
+echo " " | sudo tee -a /etc/crontab
+echo "$line" | sudo tee -a /etc/crontab
 
