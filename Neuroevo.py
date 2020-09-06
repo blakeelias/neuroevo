@@ -124,9 +124,9 @@ class FakeJob:
         self.result = j.result
 
 class GA:
-    def __init__(self, population, compressed_models=None, queue_name='default'):
+    def __init__(self, population, models=None, queue_name='default'):
         self.population = population
-        self.models = [CompressedModel() for _ in range(population)] if compressed_models is None else compressed_models
+        self.models = [Model() for _ in range(population)] if models is None else models
         
         self.redis = Redis(REDIS_HOST)
         self.queue = Queue(connection=self.redis, name=queue_name)
@@ -207,7 +207,6 @@ print('Out[7]:')
 
 def make_video(env, model, max_eval=2000, max_noop=30):  # max_eval=200000 orig value.
     env = gym.make(env)
-    model = uncompress_model(model)
     noops = random.randint(0, max_noop)
     cur_states = [reset(env)] * 4
     total_reward = 0

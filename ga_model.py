@@ -22,7 +22,7 @@ def convert_state(state):
     return cv2.resize(cv2.cvtColor(state, cv2.COLOR_RGB2GRAY), (64, 64)) / 255.0
 
 class Model(nn.Module):
-    def __init__(self, rng_state):
+    def __init__(self):
         super().__init__()
         
         # TODO: padding?
@@ -31,12 +31,9 @@ class Model(nn.Module):
         self.conv3 = nn.Conv2d(64, 64, (3, 3), 1)
         self.dense = nn.Linear(4*4*64, 512)
         self.out = nn.Linear(512, 18)
-        
-        self.rng_state = rng_state
-        torch.manual_seed(rng_state)
-            
-        self.evolve_states = []
-            
+                
+        torch.manual_seed(random_state())
+                
         self.add_tensors = {}
         for name, tensor in self.named_parameters():
             if tensor.size() not in self.add_tensors:
@@ -54,40 +51,20 @@ class Model(nn.Module):
         x = F.relu(self.dense(x))
         return self.out(x)
     
-    def evolve(self, sigma, rng_state):
-        torch.manual_seed(rng_state)
-        self.evolve_states.append((sigma, rng_state))
-            
+    def evolve(self, sigma):
+        torch.manual_seed(random_state())
+                    
         for name, tensor in sorted(self.named_parameters()):
             to_add = self.add_tensors[tensor.size()]
             to_add.normal_(0.0, sigma)
             tensor.data.add_(to_add)
             
-    def compress(self):
-        return CompressedModel(self.rng_state, self.evolve_states)
-
-def uncompress_model(model):    
-    start_rng, other_rng = model.start_rng, model.other_rng
-    m = Model(start_rng)
-    for sigma, rng in other_rng:
-        m.evolve(sigma, rng)
-    return m
-
 def random_state():
     return random.randint(0, 2**31-1)
-
-class CompressedModel:
-    def __init__(self, start_rng=None, other_rng=None):
-        self.start_rng = start_rng if start_rng is not None else random_state()
-        self.other_rng = other_rng if other_rng is not None else []
-        
-    def evolve(self, sigma, rng_state=None):
-        self.other_rng.append((sigma, rng_state if rng_state is not None else random_state()))
-        
+    
 def evaluate_model(env, model, max_eval=20000, max_noop=30):
     import gym
     env = gym.make(env)
-    model = uncompress_model(model)
     noops = random.randint(0, max_noop)
     cur_states = [reset(env)] * 4
     total_reward = 0
