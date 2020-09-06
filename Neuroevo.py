@@ -31,6 +31,8 @@ import sys
 import os
 import time
 import pickle
+import argparse
+import json
 module_path = os.path.abspath(os.path.join('.'))
 if module_path not in sys.path:
     sys.path.append(module_path)
@@ -39,6 +41,32 @@ from ga_model import *
 
 def to_np(x):
     return x.data.cpu().numpy()
+
+
+def parse_args():
+    # Training settings
+    parser = argparse.ArgumentParser(description='CIFAR10 MLP by hand example')
+
+    parser.add_argument('--num_elites', type=int, default=1, help='Number of agents to preserve identically in the next generation')
+    parser.add_argument('--population_size', type=int, default=5_000, help='Number of agents in the population')
+    parser.add_argument('--num_frames', type=int, default=1_000_000_000, help='Total number of frames to run')
+    parser.add_argument('--sigma', type=float, default=0.005, help='Standard deviation of the noise added to each agent')
+    
+    parser.add_argument("--output_dir",
+                        default="logs/jobs/",
+                        type=str,
+                        help="The output directory where the model predictions and checkpoints will be written.")
+
+    args = parser.parse_args()
+    os.makedirs(args.output_dir, exist_ok=True)
+    print(args)
+    # dump args to args.json
+    with open(os.path.join(args.output_dir, 'args.json'), 'w') as f:
+        json.dump(vars(args), f, indent=4, sort_keys=True)
+    return args
+
+args = parse_args()
+
 
 
 # # Gym stuff
@@ -142,6 +170,7 @@ class GA:
         scored_models.sort(key=lambda x: x[1], reverse=True)
         return scored_models, used_frames
 
+    
     def evolve_iter(self, env, sigma=0.005, truncation=5000, max_eval=5000, max_noop=30, num_elites=1):
         # Change: set truncation to population size -- no truncation; letting repro_weights take care of this
         # original value: 10
@@ -212,18 +241,18 @@ def make_video(env, model, max_eval=2000, max_noop=30):  # max_eval=200000 orig 
 # In[8]:
 print('Out[8]:')
 
-def run_env(env, do_run=True, render_vids=True):
+def run_env(env, args, do_run=True, render_vids=True):
     if do_run:
-        ga = GA(5000)  # 5000
+        ga = GA(args.population_size)
 
         total_frames = 0
         all_results = [(0.0, 0.0, 0.0, 0, time.time())]
-        while total_frames < 1_000_000_000: # 100_000_000 to run faster...
+        while total_frames < args.num_frames: # 100_000_000 to run faster...
             print(f'total_frames={total_frames}')
             if 'Breakout' in env.spec.id and total_frames < 10_000_000:
-                med, avg, M, frames = ga.evolve_iter(env.spec.id, max_eval=400)
+                med, avg, M, frames = ga.evolve_iter(env.spec.id, sigma=args.sigma, num_elites=args.num_elites, max_eval=400)
             else:
-                med, avg, M, frames = ga.evolve_iter(env.spec.id)
+                med, avg, M, frames = ga.evolve_iter(env.spec.id, sigma=args.sigma, num_elites=args.num_elites)
             total_frames += frames
             all_results.append((med, avg, M, frames, time.time()))
             print(f'Done with generation!\nMedian: {med}, average: {avg}, max: {M}, frames: {total_frames:,}')
@@ -308,8 +337,8 @@ print('Out[9]:')
 myenv = gym.make('FrostbiteDeterministic-v4')
 print(myenv)
 print(myenv.spec.id)
-# run_env(myenv, False, render_vids=True)
-run_env(myenv, True, render_vids=True)
+# run_env(myenv, args, do_run=False, render_vids=True)
+run_env(myenv, args, do_run=True, render_vids=True)
 
 
 # In[10]:
@@ -333,7 +362,7 @@ print('bye')
 # In[ ]:
 print('Out[11]:')
 
-run_env(gym.make('BreakoutDeterministic-v4'), True, render_vids=True)
+run_env(gym.make('BreakoutDeterministic-v4'), args, do_run=True, render_vids=True)
 
 
 # ### Breakout
@@ -352,7 +381,7 @@ run_env(gym.make('BreakoutDeterministic-v4'), True, render_vids=True)
 # In[ ]:
 print('Out[12]:')
 
-run_env(gym.make('SpaceInvadersDeterministic-v4'), True, render_vids=True)
+run_env(gym.make('SpaceInvadersDeterministic-v4'), args, do_run=True, render_vids=True)
 
 
 # ### Space Invaders
