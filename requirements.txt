@@ -14,3 +14,4 @@ redis-server
 Pillow
 imageio
 tqdm
+einops

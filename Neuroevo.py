@@ -115,7 +115,7 @@ print(env.action_space)
 print('Out[6]:')
 
 
-REDIS_HOST = '172.31.33.192' # '172.31.2.229'
+REDIS_HOST = '172.31.38.127'
 TIMEOUT = 3000  # orig value is 600
 TTL = TIMEOUT + 50
 
